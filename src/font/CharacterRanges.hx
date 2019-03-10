@@ -1,7 +1,5 @@
 package font;
 
-import imagsyd.log.Log;
-
 /**
  * ...
  * @author Michal Moczynski

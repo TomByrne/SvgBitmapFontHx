@@ -1,6 +1,5 @@
 package font.svg;
 
-import imagsyd.time.EnterFrame;
 import openfl.display.BitmapData;
 import openfl.display.DisplayObject;
 import openfl.display.Sprite;
@@ -18,6 +17,7 @@ import starling.textures.Texture;
 import starling.utils.HAlign;
 import starling.utils.VAlign;
 import font.svg.SvgFont;
+import starling.time.Tick;
 
 /**
  * Takes an SVG Font and generates a BitmapFont from it over a number of frames.
@@ -106,21 +106,23 @@ class SvgBitmapFontGenerator
 		snapped = 0;
 		finalizingFont = false;
 		
-		EnterFrame.add( handleFrame );
+		Tick.once( handleFrame );
 	}
 	
 	function handleFrame():Void 
 	{
+        var moreLeft:Bool = false;
 		for (i in 0 ... charsPerFrame) 
 		{
-			snapSingleChar();
+			moreLeft = snapSingleChar();
 		}
+		if(moreLeft) Tick.once( handleFrame );
 	}
 	
-	function snapSingleChar():Void 
+	function snapSingleChar() : Bool 
 	{
 		if (finalizingFont)
-			return;
+			return false;
 			
 		//find the next char to be snapped in this frame
 		var foundCharToSnap:Bool = false;		
@@ -141,9 +143,8 @@ class SvgBitmapFontGenerator
 		if ( characterCounter >= svgFont.asciiCodes.length)
 		{
 			finalizingFont = true;
-			EnterFrame.remove( handleFrame );
 			finalizeFontGeneration();
-			return;
+			return false;
 		}
 		
 		
@@ -216,6 +217,7 @@ class SvgBitmapFontGenerator
 		}
 		
 		snapped++;
+        return true;
 	}	
 	
 	function finalizeFontGeneration() 
@@ -273,7 +275,9 @@ class SvgBitmapFontGenerator
 			charNode.set("width", Std.string( b.width) );
 			charNode.set("height", Std.string( b.height) );			
 			charNode.set("xoffset", Std.string(charOffsets.get( character.asciiCode ).x ));
-			charNode.set("yoffset", Std.string(charOffsets.get( character.asciiCode ).y ));		
+
+            var yPos:Float = charOffsets.get( character.asciiCode ).y;
+			charNode.set("yoffset", Std.string(lineHeight + yPos));		
 			
 			var hAdv:Float = character.hAdvX == 0 ? b.width : character.hAdvX * fontScale;
 			charNode.set("xadvance", Std.string( hAdv ) );
@@ -298,7 +302,7 @@ class SvgBitmapFontGenerator
 		
 		var bmFont = new BitmapFont(texture, fontXml);
 		var regName = (forceFamily == null ? svgFont.fontFamily : forceFamily) + "_" + size;
-		#if !starling2
+		#if (starling < '2.0.0')
 		TextField.registerBitmapFont( bmFont, regName );
 		#else
 		TextField.registerCompositor( bmFont, regName );
