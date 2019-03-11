@@ -4,8 +4,8 @@
   "license": "MIT",
   "tags": ["svg", "fonts", "text"],
   "description": "A library for parsing and rasterising SVG Fonts (for OpenFL / Starling).",
-  "version": "0.0.3",
-  "releasenote": "Fixed issues with super-sampling & scaling.",
+  "version": "0.0.4",
+  "releasenote": "Fixed issue with characters being cropped.\nAdded option to snap X Advance to full pixels.",
   "contributors": ["tbyrne"],
   "classPath":"src",
   "dependencies": {

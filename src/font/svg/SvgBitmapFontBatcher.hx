@@ -17,11 +17,13 @@ class SvgBitmapFontBatcher
     var scaleFactor:Float;
     var charPadding:Int;
     var onComplete:Void->Void;
+    var generateMipMaps:Bool;
 
-	public function new(fonts:Array<SvgFontDefSize>, scaleFactor:Float = 1, charPadding:Int = 1, ?onComplete:Void->Void):Void
+	public function new(fonts:Array<SvgFontDefSize>, scaleFactor:Float = 1, charPadding:Int = 1, generateMipMaps:Bool, ?onComplete:Void->Void):Void
 	{
         this.fonts = fonts;
         this.scaleFactor = scaleFactor;
+        this.generateMipMaps = generateMipMaps;
         this.charPadding = charPadding;
         this.onComplete = onComplete;
         
@@ -42,7 +44,8 @@ class SvgBitmapFontBatcher
 				fontDefs.set(currentFont.name, svgFontDisplays);
 			}
 			var bitmapFontGenerator:SvgBitmapFontGenerator = new SvgBitmapFontGenerator( svgFontDisplays, currentFont.size, 100, currentFont.name, charPadding, scaleFactor, handleFontGenerated);
-			bitmapFontGenerator.generateBitmapFont( CharacterRanges.fromStrings(currentFont.def.ranges) );
+			bitmapFontGenerator.generateMipMaps = generateMipMaps;
+            bitmapFontGenerator.generateBitmapFont( CharacterRanges.fromStrings(currentFont.def.ranges) );
 			
 		}else{
 			if(onComplete != null) onComplete();
