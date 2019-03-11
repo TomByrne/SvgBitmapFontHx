@@ -250,13 +250,13 @@ class SvgBitmapFontGenerator
 			var charNode:Xml = Xml.createElement("char");
 			charNode.set("id", Std.string( character.asciiCode ) );
 			charNode.set("x", Std.string( lastPosX) );
-			charNode.set("y", Std.string( lastPosY + lineHeight - b.height + innerPadding ) );
+			charNode.set("y", Std.string( lastPosY + lineHeight - b.height ) );
 			charNode.set("width", Std.string( b.width) );
 			charNode.set("height", Std.string( b.height) );			
 			charNode.set("xoffset", Std.string(charOffsetsX.get( character.asciiCode ) ));
 
             var yPos:Float = charOffsetsY.get( character.asciiCode );
-			charNode.set("yoffset", Std.string(lineHeight + yPos));		
+			charNode.set("yoffset", Std.string(lineHeight + yPos - innerPadding));		
 			
 			var hAdv:Float = character.hAdvX == 0 ? b.width / scaleFactor : character.hAdvX * fontScale;
 			charNode.set("xadvance", Std.string( snapTo(hAdv, snapAdvanceXTo / scaleFactor, true) * scaleFactor ) );
