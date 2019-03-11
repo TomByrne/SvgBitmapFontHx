@@ -46,28 +46,26 @@ class SvgBitmapFontGenerator
 	var fontScale:Float;
 	var allCharactersToBeAttached:Array<Int>;
 	var finalizingFont:Bool;
-	var charsPerFrame:Int;
 	var forceFamily:String;
-	var padding:Int;
-	var scaleFactor:Float;
 	var onComplete:Void->Void;
 	
 	public var superSampling:Float = 1;
 	public var superSamplingScaleThreshold:Float = 0.1; // How small the display object scale has to be to use supersampling by default
 	
+	public var gap:Int = 1;
+	public var innerPadding:Int = 1;
+	public var scaleFactor:Float = 1.0;
 	public var generateMipMaps:Bool = false;
+	public var charsPerFrame:Int = 50;
 	
 	public var snapAdvanceXTo:Float = 1;
 	
-	public function new(svgFont:SvgFontDisplays, size:Float, charsPerFrame:Int = 50, ?forceFamily:String, ?padding:Int = 1, ?scaleFactor:Float = 1, ?onComplete:Void->Void ) 
+	public function new(svgFont:SvgFontDisplays, size:Float, ?forceFamily:String, ?onComplete:Void->Void ) 
 	{
 		this.svgFontDisplays = svgFont;
 		this.svgFont = svgFontDisplays.svgFont;
-		this.scaleFactor = scaleFactor;
-		this.padding = padding;
 		this.size = size;
 		this.fontScale = size / this.svgFont.unitsPerEm;
-		this.charsPerFrame = charsPerFrame;
 		this.forceFamily = forceFamily;		
 		this.onComplete = onComplete;	
 	}
@@ -161,10 +159,10 @@ class SvgBitmapFontGenerator
         charDisplayObject.scaleX =  scaleFactor;
 		var bounds:Rectangle = charDisplayObject.getBounds(container);
 
-		var imageCropX:Int = -Math.ceil( -bounds.x * fontScale);
-		var imageCropY:Int = -Math.ceil( -bounds.y * fontScale);
-		var imageCropW:Int = Math.ceil( bounds.right * fontScale) - imageCropX;
-		var imageCropH:Int = Math.ceil( bounds.bottom * fontScale) - imageCropY;
+		var imageCropX:Int = -Math.ceil( -bounds.x * fontScale) - innerPadding;
+		var imageCropY:Int = -Math.ceil( -bounds.y * fontScale) - innerPadding;
+		var imageCropW:Int = Math.ceil( bounds.right * fontScale) - imageCropX + innerPadding * 2;
+		var imageCropH:Int = Math.ceil( bounds.bottom * fontScale) - imageCropY + innerPadding * 2;
 		
 		charDisplayObject.x = -imageCropX / fontScale;
 		charDisplayObject.y = -imageCropY / fontScale;
@@ -240,19 +238,19 @@ class SvgBitmapFontGenerator
 		for (b in bitmapDataArray) 
 		{
 			if (lastPosX == 0)
-				lineHeight = b.height;
+				lineHeight = b.height - innerPadding * 2;
 				
 			if (lastPosX + b.width > combinedBitmapData.width)
 			{
 				lastPosX = 0;
-				lastPosY += lineHeight + padding;
+				lastPosY += lineHeight + gap;
 			}
 
 			var character:SvgCharacterVO = svgFont.asciiToCharacterMap.get( bitmapDataToAsciiMap.get(b) );
 			var charNode:Xml = Xml.createElement("char");
 			charNode.set("id", Std.string( character.asciiCode ) );
 			charNode.set("x", Std.string( lastPosX) );
-			charNode.set("y", Std.string( lastPosY + lineHeight - b.height ) );
+			charNode.set("y", Std.string( lastPosY + lineHeight - b.height + innerPadding ) );
 			charNode.set("width", Std.string( b.width) );
 			charNode.set("height", Std.string( b.height) );			
 			charNode.set("xoffset", Std.string(charOffsetsX.get( character.asciiCode ) ));
@@ -268,7 +266,7 @@ class SvgBitmapFontGenerator
 			chars.addChild( charNode );
 			
 			combinedBitmapData.copyPixels( b, new Rectangle(0, 0, b.width, b.height), new Point(lastPosX, lastPosY + lineHeight - b.height) );
-			lastPosX += b.width + padding;
+			lastPosX += b.width + gap;
 			b.dispose();
 		}
 		bitmapDataArray = [];
