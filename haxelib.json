@@ -4,8 +4,8 @@
   "license": "MIT",
   "tags": ["svg", "fonts", "text"],
   "description": "A library for parsing and rasterising SVG Fonts (for OpenFL / Starling).",
-  "version": "0.0.6",
-  "releasenote": "Fixed bug with innerPadding offset to char position",
+  "version": "0.0.7",
+  "releasenote": "Fixed Batcher to work with new Generator API",
   "contributors": ["tbyrne"],
   "classPath":"src",
   "dependencies": {

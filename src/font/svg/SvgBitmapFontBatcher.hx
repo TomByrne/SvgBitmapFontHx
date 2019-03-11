@@ -15,16 +15,16 @@ class SvgBitmapFontBatcher
 	var currentFont:SvgFontDefSize;
 	var fontDefs:Map<String, SvgFontDisplays> = new Map();
     var scaleFactor:Float;
-    var charPadding:Int;
+    var charGap:Int;
     var onComplete:Void->Void;
     var generateMipMaps:Bool;
 
-	public function new(fonts:Array<SvgFontDefSize>, scaleFactor:Float = 1, charPadding:Int = 1, generateMipMaps:Bool, ?onComplete:Void->Void):Void
+	public function new(fonts:Array<SvgFontDefSize>, scaleFactor:Float = 1, charGap:Int = 1, generateMipMaps:Bool, ?onComplete:Void->Void):Void
 	{
         this.fonts = fonts;
         this.scaleFactor = scaleFactor;
         this.generateMipMaps = generateMipMaps;
-        this.charPadding = charPadding;
+        this.charGap = charGap;
         this.onComplete = onComplete;
         
 		fontIterator = fonts.iterator();
@@ -43,8 +43,11 @@ class SvgBitmapFontBatcher
 				svgFontDisplays = SvgFontDisplays.create(svgFont);
 				fontDefs.set(currentFont.name, svgFontDisplays);
 			}
-			var bitmapFontGenerator:SvgBitmapFontGenerator = new SvgBitmapFontGenerator( svgFontDisplays, currentFont.size, 100, currentFont.name, charPadding, scaleFactor, handleFontGenerated);
+			var bitmapFontGenerator:SvgBitmapFontGenerator = new SvgBitmapFontGenerator( svgFontDisplays, currentFont.size, currentFont.name, handleFontGenerated);
 			bitmapFontGenerator.generateMipMaps = generateMipMaps;
+            bitmapFontGenerator.charsPerFrame = 200;
+            bitmapFontGenerator.gap = charGap;
+            bitmapFontGenerator.scaleFactor = scaleFactor;
             bitmapFontGenerator.generateBitmapFont( CharacterRanges.fromStrings(currentFont.def.ranges) );
 			
 		}else{
