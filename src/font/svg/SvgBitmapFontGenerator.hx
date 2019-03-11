@@ -47,25 +47,25 @@ class SvgBitmapFontGenerator
 	var finalizingFont:Bool;
 	var charsPerFrame:Int;
 	var forceFamily:String;
-	var forceSuperSampling:Bool;
 	var padding:Int;
 	var scaleFactor:Float;
 	var onComplete:Void->Void;
 	
-	public var superSampling:Float = 4;
-	public var superSamplingScaleThreshold:Float = 0.1;//how small the display object scale has to be to use supersampling by default
+	public var superSampling:Float = 1;
+	public var superSamplingScaleThreshold:Float = 0.1; // How small the display object scale has to be to use supersampling by default
 	
-	public function new(svgFont:SvgFontDisplays, size:Float, charsPerFrame:Int = 50, ?forceFamily:String, ?forceSuperSampling:Bool, ?padding:Int = 1, ?scaleFactor:Float = 1, ?onComplete:Void->Void ) 
+	public var generateMipMaps:Bool = false;
+	
+	public function new(svgFont:SvgFontDisplays, size:Float, charsPerFrame:Int = 50, ?forceFamily:String, ?padding:Int = 1, ?scaleFactor:Float = 1, ?onComplete:Void->Void ) 
 	{
 		this.svgFontDisplays = svgFont;
 		this.svgFont = svgFontDisplays.svgFont;
 		this.scaleFactor = scaleFactor;
-		this.padding = Math.ceil( padding / scaleFactor);
+		this.padding = padding;
 		this.size = size;
-		this.fontScale = size / svgFontDisplays.svgFont.unitsPerEm;
+		this.fontScale = size / this.svgFont.unitsPerEm;
 		this.charsPerFrame = charsPerFrame;
 		this.forceFamily = forceFamily;		
-		this.forceSuperSampling = forceSuperSampling;
 		this.onComplete = onComplete;	
 	}
 	
@@ -80,11 +80,11 @@ class SvgBitmapFontGenerator
 		//unique font name used later in TextField.registerBitmapFont and to bring that font in TextFormat
 //		this.log("generating " + svgFont.fontFamily + "_" + size);
 		info.set("face", svgFont.fontFamily + "_" + size);
-		info.set("size", Std.string(size));
+		info.set("size", Std.string(size * scaleFactor)); // This shouldn't be scaled but needs to be to offsets the scaling in BitmapFont.parseFontXml
 		fontXml.addChild(info);
 		
 		common = Xml.createElement("common");
-		common.set("lineHeight", Std.string( Math.ceil( svgFont.capHeight * fontScale ) ) );
+		common.set("lineHeight", Std.string( Math.ceil( (svgFont.capHeight * fontScale) * scaleFactor ) ) );
 		common.set("base", Std.string(size));
 		common.set("pages", "1");
 		common.set("packed", "0");
@@ -154,67 +154,46 @@ class SvgBitmapFontGenerator
 		charDisplayObject.transform.matrix = new Matrix();
 		
 		container.addChild(charDisplayObject);
+		charDisplayObject.scaleY = -scaleFactor; // SVG y-axis is in opposite direction
+        charDisplayObject.scaleX =  scaleFactor;
 		var bounds:Rectangle = charDisplayObject.getBounds(container);
-		
-		var fullOffsetX:Float = 0;
-		var fullOffsetY:Float = 0;
-		
-		fullOffsetX = -bounds.x;
-		if (bounds.height > svgFont.capHeight)
-		{
-			fullOffsetY = bounds.y + bounds.height;
-		}
-		else
-		{
-			fullOffsetY = bounds.y + bounds.height;
-		}
 
-		var fullPixelSizeInSvg:Float = svgFont.unitsPerEm / size;
-		
-		var fullPixelsOffsetX:Float = Math.ceil( fullOffsetX / fullPixelSizeInSvg) * fullPixelSizeInSvg;
-		var fullPixelsOffsetY:Float = Math.ceil( fullOffsetY / fullPixelSizeInSvg ) * fullPixelSizeInSvg;
+		var fullPixelsOffsetX:Float = Math.ceil( -bounds.x * fontScale) / fontScale;
+		var fullPixelsOffsetY:Float = Math.ceil( -bounds.y * fontScale ) / fontScale;
 		
 		charDisplayObject.x = fullPixelsOffsetX;
 		charDisplayObject.y = fullPixelsOffsetY;
 
-		var bmpWidth:Int = Math.ceil( bounds.width / fullPixelSizeInSvg);
-		var bmpHeight:Int = Math.ceil( bounds.height / fullPixelSizeInSvg);
+		var bmpWidth:Int = Math.ceil( bounds.width * fontScale);
+		var bmpHeight:Int = Math.ceil( bounds.height * fontScale);
 
-		charDisplayObject.scaleY = -1;
 
-		charOffsets.set( char.asciiCode, new Point( -fullPixelsOffsetX / fullPixelSizeInSvg, - fullPixelsOffsetY / fullPixelSizeInSvg) );
+		charOffsets.set( char.asciiCode, new Point( -fullPixelsOffsetX * fontScale, - fullPixelsOffsetY * fontScale) );
 
 		var bmpDta:BitmapData;
 		var m:Matrix = new Matrix();
+
+        var superSample:Float = (fontScale <= superSamplingScaleThreshold ? superSampling : 1);
+        
+        m.scale(fontScale * superSampling, fontScale * superSampling);		
+        bmpDta = new BitmapData( Math.ceil(bmpWidth * superSampling), Math.ceil(bmpHeight * superSampling), true, 0x00ffffff);
+        bmpDta.drawWithQuality( container, m, null, null, null, true, StageQuality.BEST);
 		
-		if (fontScale <= superSamplingScaleThreshold || forceSuperSampling != null)
+		if (superSample != 1)
 		{
-			m.scale(fontScale * superSampling, fontScale * superSampling);		
-			bmpDta = new BitmapData( Math.ceil(bmpWidth * superSampling), Math.ceil(bmpHeight * superSampling), true, 0x00ffffff);
-			bmpDta.drawWithQuality( container, m, null, null, null, true, StageQuality.BEST);
-			
 			var m2:Matrix = new Matrix();
-			m2.scale( 1/superSampling, 1/superSampling);
+			m2.scale( 1/superSample, 1/superSample);
 			var bmpDta2:BitmapData = new BitmapData(bmpWidth, bmpHeight, true, 0x00ffffff);
-			estimatedBitmapArea += (bmpDta2.width + 1) * (bmpDta2.height + 1);
 			bmpDta2.drawWithQuality(bmpDta, m2, null, null, null, true, StageQuality.BEST);
 			
 			bmpDta.dispose();
-			
-			bitmapDatas.set(char.asciiCode, bmpDta2);
-			bitmapDataToAsciiMap.set(bmpDta2, char.asciiCode);
-			bitmapDataArray.push(bmpDta2);				
+            bmpDta = bmpDta2;			
 		}
-		else
-		{
-			m.scale(fontScale, fontScale);		
-			bmpDta = new BitmapData( bmpWidth, (bmpHeight), true, 0x00ffffff);
-			bmpDta.drawWithQuality( container, m, null, null, null, true, StageQuality.BEST);
-			
-			bitmapDatas.set(char.asciiCode, bmpDta);
-			bitmapDataToAsciiMap.set(bmpDta, char.asciiCode);
-			bitmapDataArray.push(bmpDta);			
-		}
+        
+		estimatedBitmapArea += (bmpDta.width + 1) * (bmpDta.height + 1);
+        bitmapDatas.set(char.asciiCode, bmpDta);
+        bitmapDataToAsciiMap.set(bmpDta, char.asciiCode);
+        bitmapDataArray.push(bmpDta);	
 		
 		snapped++;
         return true;
@@ -280,7 +259,7 @@ class SvgBitmapFontGenerator
 			charNode.set("yoffset", Std.string(lineHeight + yPos));		
 			
 			var hAdv:Float = character.hAdvX == 0 ? b.width : character.hAdvX * fontScale;
-			charNode.set("xadvance", Std.string( hAdv ) );
+			charNode.set("xadvance", Std.string( hAdv * scaleFactor ) );
 			
 			charNode.set("page", "0" );
 			charNode.set("chnl", "15" );
@@ -298,7 +277,8 @@ class SvgBitmapFontGenerator
 		addKerningNodes();
 
 		//create the texture and register the font
-		var texture:Texture = Texture.fromBitmapData( combinedBitmapData, true, false, 1 / scaleFactor );
+		var texture:Texture = Texture.fromBitmapData( combinedBitmapData, generateMipMaps, scaleFactor );
+        trace('hm: ' + texture.height+" "+texture.nativeHeight);
 		
 		var bmFont = new BitmapFont(texture, fontXml);
 		var regName = (forceFamily == null ? svgFont.fontFamily : forceFamily) + "_" + size;
