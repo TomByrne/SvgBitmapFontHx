@@ -259,7 +259,7 @@ class SvgBitmapFontGenerator
 			charNode.set("yoffset", Std.string(lineHeight + yPos - innerPadding));		
 			
 			var hAdv:Float = character.hAdvX == 0 ? b.width / scaleFactor : character.hAdvX * fontScale;
-			charNode.set("xadvance", Std.string( snapTo(hAdv, snapAdvanceXTo / scaleFactor, true) * scaleFactor ) );
+			charNode.set("xadvance", Std.string( snapTo(hAdv, snapAdvanceXTo / scaleFactor) * scaleFactor ) );
 			
 			charNode.set("page", "0" );
 			charNode.set("chnl", "15" );
