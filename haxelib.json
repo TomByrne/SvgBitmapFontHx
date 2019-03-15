@@ -4,8 +4,8 @@
   "license": "MIT",
   "tags": ["svg", "fonts", "text"],
   "description": "A library for parsing and rasterising SVG Fonts (for OpenFL / Starling).",
-  "version": "0.0.8",
-  "releasenote": "Change to X-Advance snapping",
+  "version": "0.0.9",
+  "releasenote": "Fixed issue with baseline when scaling used\nFixed issue where baseline and line height were switched",
   "contributors": ["tbyrne"],
   "classPath":"src",
   "dependencies": {

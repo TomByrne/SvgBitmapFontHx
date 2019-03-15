@@ -85,8 +85,10 @@ class SvgBitmapFontGenerator
 		fontXml.addChild(info);
 		
 		common = Xml.createElement("common");
-		common.set("lineHeight", Std.string( Math.ceil( (svgFont.capHeight * fontScale) * scaleFactor ) ) );
-		common.set("base", Std.string(size));
+
+		common.set("lineHeight", Std.string(size * scaleFactor));
+		common.set("base", Std.string( Math.ceil( (svgFont.capHeight * fontScale) * scaleFactor ) ));
+
 		common.set("pages", "1");
 		common.set("packed", "0");
 		common.set("alphaChnl", "0");
