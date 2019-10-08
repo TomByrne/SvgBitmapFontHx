@@ -1,8 +1,7 @@
 package font.svg;
 
-import haxe.Utf8;
 
-#if (haxe >=4)
+#if (haxe_ver >=4)
 import haxe.xml.Access;
 #else
 import haxe.xml.Fast as Access;
@@ -152,7 +151,11 @@ class SvgFont
 			return Std.parseInt( "0x" + unicode.substr(3, end - 3) );
 		}
 		else
-			return Utf8.charCodeAt(unicode, 0);
+		#if (haxe_ver >=4)
+			return new UnicodeString(unicode).charCodeAt(0);
+		#else
+			return haxe.Utf8.charCodeAt(unicode, 0);
+		#end
 	}
 }
 
