@@ -4,8 +4,8 @@
 	
 	<source path="."/>
 
-    <haxelib name="lime" version="7.5.0"/>
-    <haxelib name="openfl" version="8.9.1"/>
+    <haxelib name="lime" version="7.6.3"/>
+    <haxelib name="openfl" version="8.9.5"/>
 	<haxelib name="starling" version="2.4.1"/>
 	<haxelib name="svg" version="1.1.3"/>
 	
