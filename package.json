@@ -1,0 +1,12 @@
+{
+	"name": "SvgBitmapFont",
+	"version": "0.2.0",
+	"homepage": "https://github.com/TomByrne/SvgBitmapFontHx",
+	"repository": {
+		"type" : "git",
+		"url" : "https://github.com/TomByrne/SvgBitmapFontHx"
+	},
+	"source":[
+		"src"
+	]
+}

@@ -4,11 +4,13 @@
   "license": "MIT",
   "tags": ["svg", "fonts", "text"],
   "description": "A library for parsing and rasterising SVG Fonts (for OpenFL / Starling).",
-  "version": "0.1.0",
-  "releasenote": "Changed from UTF8 (deprecated) to UnicodeString",
+  "version": "0.2.0",
+  "releasenote": "Added Travis builds",
   "contributors": ["tbyrne"],
   "classPath":"src",
   "dependencies": {
-	  "openfl": ""
+	  "openfl": "",
+	  "starling": "",
+	  "svg": ""
   }
 }

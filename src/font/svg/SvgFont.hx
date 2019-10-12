@@ -129,6 +129,8 @@ class SvgFont
 
 		//fill kernings
 		for (hkern in font.nodes.hkern) {
+			if(!hkern.has.u1 || !hkern.has.u2 || !hkern.has.k) continue; // skip
+
 			var u1:Int = parseUnicodeToAscii(hkern.att.u1);
 			var u2:Int = parseUnicodeToAscii(hkern.att.u2);
 			var k:Int = parseUnicodeToAscii(hkern.att.k);

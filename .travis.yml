@@ -1,0 +1,25 @@
+sudo: required
+dist: trusty
+
+language: haxe
+
+haxe:
+ - "3.4.7"
+ - "development"
+ 
+hxml:
+ - test/ImportAll.hxml
+
+install:
+ - haxelib install test/ImportAll.hxml --always --quiet
+ - haxelib install SvgBitmapFont --quiet
+ - haxelib dev SvgBitmapFont . --quiet
+ - haxelib run lime setup -y --quiet
+ 
+script:
+ - lime build test/ImportAll.lime html5
+ 
+deploy:
+ - provider: script
+   haxe: 3.4.7
+   script: bash ./release_haxelib.sh $HAXELIB_PWD
