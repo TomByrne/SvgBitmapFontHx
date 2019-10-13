@@ -7,7 +7,7 @@ Depends on OpenFL for rendering to bitmap.
 
 There are two main ways to use the generator, either using `SvgBitmapFontGenerator` to generate a single font, or using `SvgBitmapFontBatcher` to generate a bunch of fonts. The second method is much more efficient than running the first method multiple times, as it internally caches certain elements.
 
-Both methods also support breaking the generation down into steps to avoid locking up your application while fonts are being generated.
+Both methods also support breaking the generation down into steps to avoid locking up your application while fonts are being generated (detailed at the bottom).
 
 #### SvgFontGeneratorConfig
 
@@ -70,19 +70,6 @@ generator.addDefaultRegisters();
 
 // Generate the whole font immediately (i.e. synchronously)
 generator.processNow();
-
-// Or, alternatvely, process the font step-by-step over time
-function onTick()
-{
-	// Process 5 characters
-	generator.process(5);
-
-	trace('processing: ' + generator.progress + '/' + generator.total);
-
-	if(generator.progress == generator.total){
-		trace('finished processing font');
-	}
-}
 ```
 
 #### SvgBitmapFontBatcher
@@ -121,24 +108,34 @@ var sizes = [
 // Fonts get registered as '{family}_{size}'
 
 // SvgBitmapFontBatcher co-ordinates the generating of the BitmapFonts
-var batcher = new SvgBitmapFontBatcher(fonts, config);
+var batcher = new SvgBitmapFontBatcher(sizes, config);
 
 // Make resulting BitmapFont get auto-registered with available font libraries (supports Starling, starling-text-display)
 batcher.addDefaultRegisters();
 
 // Generate the whole font immediately (i.e. synchronously)
 batcher.processNow();
+```
 
-// Or, alternatvely, process the font step-by-step over time
-function onTick()
+#### Asynchronous font generation
+
+Both `SvgFontGeneratorConfig` and `SvgBitmapFontBatcher` expose an identical API for breaking down the generating of fonts into chunks, so it can be done in a pseudo-asynchronous way.
+
+This API doesn't internally hook into any timer, so you have to manually hook into a frame loop and continue calling `process()` until `progress:Int` equals `total:Int`.
+
+```haxe
+// Add a hook into the frame timer (platform-specific)
+// OpenFL used as an example
+Lib.current.addEventListener(Event.ENTER_FRAME, onEnterFrame);
+function onEnterFrame(e:Event)
 {
-	// Process 5 characters
-	batcher.process(5);
+	// Process 5 characters each frame
+	generator.process(5);
+	trace('processing: ' + generator.progress + '/' + generator.total);
 
-	trace('processing: ' + batcher.progress + '/' + batcher.total);
-
-	if(batcher.progress == batcher.total){
+	if(generator.progress == generator.total){
 		trace('finished processing font');
+        Lib.current.removeEventListener(Event.ENTER_FRAME, onEnterFrame);
 	}
 }
 ```
