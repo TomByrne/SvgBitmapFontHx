@@ -80,8 +80,10 @@ class SvgFont
 		fill.svgRendererXml = Xml.createElement('svg');
 		
 		for(glyph in font.nodes.glyph) {
-			var path:Xml = Xml.createElement('path'); 
-			path.set("id", glyph.att.resolve("glyph-name"));
+			var path:Xml = Xml.createElement('path');
+
+			var id:String = ( glyph.has.resolve("unicode") ? glyph.att.resolve("unicode") : glyph.att.resolve("glyph-name") );
+			path.set("id", id);
 			
 			if(options.overrideFill != null)
 				path.set("fill", options.overrideFill);
@@ -101,10 +103,12 @@ class SvgFont
 			if (glyph.has.resolve("unicode"))
 			{
 				var ascii:Int = parseUnicodeToAscii(glyph.att.resolve("unicode"));
+				var unicode:String = glyph.att.resolve("unicode");
+
 				var char:SvgCharacterVO = {
-					name:		glyph.att.resolve("glyph-name"),
+					//name:		unicode,
 					asciiCode:	ascii,
-					unicode:	glyph.att.resolve("unicode"),
+					unicode:	unicode,
 					
 					hOriginX:		glyph.has.resolve("horiz-origin-x") ? Std.parseInt( glyph.att.resolve("horiz-origin-x")) : 0,
 					hOriginY:		glyph.has.resolve("horiz-origin-y") ? Std.parseInt( glyph.att.resolve("horiz-origin-y")) : 0,
@@ -163,7 +167,7 @@ class SvgFont
 
 typedef SvgCharacterVO =
 {
-	var name:String;
+	//var name:String;
 	var asciiCode:Int;
 	var unicode:String;
 	

@@ -156,7 +156,7 @@ class SvgBitmapFontGenerator
 	{
 		//snap the character
 		var container:Sprite = new Sprite();
-		var charDisplayObject:DisplayObject = renderer.render(char.name);
+		var charDisplayObject:DisplayObject = renderer.render(char.unicode);
 		charDisplayObject.transform.matrix = new Matrix();
 		
 		container.addChild(charDisplayObject);

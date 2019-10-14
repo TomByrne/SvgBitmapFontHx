@@ -24,20 +24,20 @@ class SvgFontRenderer
 		fontRenderer = new SVGRenderer (fontData);
 	}
     
-	public function render(charName:String) : Shape
+	public function render(unicode:String) : Shape
 	{
-		if(rendered.exists(charName)){
-			return rendered.get(charName);
+		if(rendered.exists(unicode)){
+			return rendered.get(unicode);
 		}
 		var shape = new Shape();
 		shape.graphics.clear();
-		fontRenderer.render (shape.graphics, filterById.bind(charName, _, _));
-		rendered.set(charName, shape);
+		fontRenderer.render (shape.graphics, filterById.bind(unicode, _, _));
+		rendered.set(unicode, shape);
 		return shape;
 	}
 
-	static function filterById(id:String, elemId:String, elemPath:Array<String>) : Bool 
+	static function filterById(unicode:String, elemId:String, elemPath:Array<String>) : Bool 
 	{
-		return elemId == id || elemPath.indexOf(id) != -1;
+		return elemId == unicode || elemPath.indexOf(unicode) != -1;
 	}
 }
