@@ -4,8 +4,8 @@
   "license": "MIT",
   "tags": ["svg", "fonts", "text"],
   "description": "A library for parsing and rasterising SVG Fonts (for OpenFL / Starling).",
-  "version": "0.3.0",
-  "releasenote": "Fixed issue where 'glyph-name' was being used instead of 'unicode'",
+  "version": "0.4.0",
+  "releasenote": "Added additional character ranges",
   "contributors": ["tbyrne"],
   "classPath":"src",
   "dependencies": {
